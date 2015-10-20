@@ -31,12 +31,17 @@ TEST(TVector, can_create_copied_vector)
 
 TEST(TVector, copied_vector_is_equal_to_source_one)
 {
-  ADD_FAILURE();
+	TVector<int> v(5);
+	TVector<int> v1(v);  
+	EXPECT_EQ(v,v1);
 }
 
 TEST(TVector, copied_vector_has_its_own_memory)
 {
-  ADD_FAILURE();
+  TVector<int> v(5);
+  TVector<int> v1(v);
+
+  EXPECT_EQ(false,&v==&v1);
 }
 
 TEST(TVector, can_get_size)
@@ -63,17 +68,20 @@ TEST(TVector, can_set_and_get_element)
 
 TEST(TVector, throws_when_set_element_with_negative_index)
 {
-  ADD_FAILURE();
+	TVector<int> v(10);
+  ASSERT_ANY_THROW(v[-1]=2);
 }
 
 TEST(TVector, throws_when_set_element_with_too_large_index)
 {
-  ADD_FAILURE();
+ TVector<int> v(10);
+  ASSERT_ANY_THROW(v[11]=2);
 }
 
 TEST(TVector, can_assign_vector_to_itself)
 {
-  ADD_FAILURE();
+  TVector<int> v(10);
+  EXPECT_TRUE(v==v);
 }
 
 TEST(TVector, can_assign_vectors_of_equal_size)
@@ -93,17 +101,38 @@ TEST(TVector, can_assign_vectors_of_different_size)
 
 TEST(TVector, compare_equal_vectors_return_true)
 {
-  ADD_FAILURE();
+	TVector<int> v(6);
+	TVector<int> v1(6);
+
+  EXPECT_EQ(true,v==v1);
 }
 
+TEST(TVector, compare_inequal_vectors_return_true)
+{
+	TVector<int> v(6);
+	TVector<int> v1(6);
+	v1[1]=6;
+
+  EXPECT_TRUE(v!=v1);
+}
 TEST(TVector, compare_vector_with_itself_return_true)
 {
-  ADD_FAILURE();
+	TVector<int> v(6);
+  EXPECT_TRUE(v==v);
 }
 
-TEST(TVector, vectors_with_different_size_are_not_equal)
+TEST(TVector, vectors_with_different_size_are_not_equal_equaly)
 {
-  ADD_FAILURE();
+  TVector<int> v(10);
+  TVector<int> v1(15);
+  EXPECT_FALSE(v==v1);
+}
+
+TEST(TVector, vectors_with_different_size_are_not_equal_inequaly)
+{
+  TVector<int> v(10);
+  TVector<int> v1(15);
+  EXPECT_EQ(true,v!=v1);
 }
 
 TEST(TVector, can_add_scalar_to_vector)
