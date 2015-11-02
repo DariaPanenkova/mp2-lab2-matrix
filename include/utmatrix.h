@@ -292,6 +292,19 @@ template <class ValType>
 template <class ValType>
 TMatrix<ValType>::TMatrix(int s): TVector<TVector<ValType> >(s)
 {
+	if(s<0)
+		throw invalid_argument("s<0");
+	if(s > MAX_MATRIX_SIZE)
+		throw invalid_argument("Size more than MAX_MATRIX_SIZE(Matrix)");
+	
+	Size = s;
+
+	for(int i=0; i < Size; i++)
+			pVector[i] = TVector <ValType>(Size-i ,i);
+	for (int i=0; i < Size; i++)
+		for (int j=(*this)[i].GetStartIndex(); j < (*this)[i].GetStartIndex() + (*this)[i].GetSize(); j++)
+			pVector[i][j] = 0;
+	
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // конструктор копирования
@@ -305,19 +318,60 @@ TMatrix<ValType>::TMatrix(const TVector<TVector<ValType> > &mt):
 template <class ValType> // сравнение
 bool TMatrix<ValType>::operator==(const TMatrix<ValType> &mt) const
 {
-	return 0;
+	if (this == &mt) 
+		return true;
+	
+
+	if (Size != mt.Size) {
+		return false;
+	}
+
+	for (int i = 0; i < Size; i++) {
+		if (pVector[i] != mt.pVector[i])
+			return false;
+	}
+
+	return true;
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // сравнение
 bool TMatrix<ValType>::operator!=(const TMatrix<ValType> &mt) const
 {
-	return 0;
+	if (this != &mt)
+		return true;
 
+	else
+		if (StartIndex != mt.StartIndex)
+			return true;
+
+		else
+		{
+			for (int i = StartIndex; i < Size; i++)
+
+				if (pVector[i]!= mt.pVector[i])
+
+					return true;
+					
+				else
+					return false;
+		}
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // присваивание
 TMatrix<ValType>& TMatrix<ValType>::operator=(const TMatrix<ValType> &mt)
 {
+	if (this != &mt)
+	{
+		if (Size != mt.Size) 
+		{
+			delete[] pVector;
+			pVector = new TVector<ValType>[mt.Size];
+		}
+		Size = mt.Size;
+		StartIndex = mt.StartIndex;
+		for (int i = 0; i < Size; i++)
+			pVector[i] = mt.pVector[i];
+	}
 	return *this;
 } /*-------------------------------------------------------------------------*/
 
