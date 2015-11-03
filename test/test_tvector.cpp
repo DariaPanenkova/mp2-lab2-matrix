@@ -256,7 +256,7 @@ TEST(TVector, can_multiply_vectors_with_equal_size)
   TVector<int> v1(2);
   int exp_c=5;
 
-  for (int i=0;i<3;i++)
+  for (int i=0;i<2;i++)
 		{
 			v[i]=i+1;
 			v1[i]=i+1;

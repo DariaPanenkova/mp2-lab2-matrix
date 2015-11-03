@@ -27,9 +27,9 @@ public:
   TVector(int s = 10, int si = 0);
   TVector(const TVector &v);                // конструктор копирования
   ~TVector();
-  int GetSize()      { return Size;       } // размер вектора
-  int GetStartIndex(){ return StartIndex; } // индекс первого элемента
-  ValType& operator[](int pos);             // доступ
+  int GetSize() const    { return Size;       } // размер вектора
+  int GetStartIndex() const { return StartIndex; } // индекс первого элемента
+  ValType& operator[](int pos) const;             // доступ
   bool operator==(const TVector &v) const;  // сравнение
   bool operator!=(const TVector &v) const;  // сравнение
   TVector& operator=(const TVector &v);     // присваивание
@@ -75,7 +75,7 @@ TVector<ValType>::TVector(int s, int si)
 	pVector=new ValType[Size];
 	for(int i=StartIndex; i < Size+StartIndex; i++)
 	{
-		pVector[i]=0;
+		(*this)[i]=ValType();
 	}
 
 } /*-------------------------------------------------------------------------*/
@@ -85,8 +85,8 @@ TVector<ValType>::TVector(const TVector<ValType> &v)
 {
 	Size=v.Size;
 	StartIndex=v.StartIndex;
-	pVector=new ValType[GetSize()];
-	for( int i=StartIndex; i < Size+StartIndex; i++)
+	pVector=new ValType[Size];
+	for( int i=0; i < Size; i++)
 	{
 		pVector[i]= v.pVector[i];
 	}
@@ -95,24 +95,27 @@ TVector<ValType>::TVector(const TVector<ValType> &v)
 template <class ValType>
 TVector<ValType>::~TVector()
 {
-	if(pVector != NULL)
+	//if(pVector != NULL)
 		delete []pVector;
 
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // доступ
-ValType& TVector<ValType>::operator[](int pos)
+ValType& TVector<ValType>::operator[](int pos) const
 {
-	if(pos > Size)
+	if(pos > Size+StartIndex)
 		throw invalid_argument("Uncorrectly position, pos > Size");
 	if(pos < 0)
 		throw invalid_argument("Uncorrectly position, pos<0");
 	if(pos > MAX_VECTOR_SIZE)
 		throw invalid_argument("Uncorrectly position, pos<MAX_VECTOR_SIZE");
-	if (pos < StartIndex) 
-		throw invalid_argument("Uncorrectly position, pos<StartIndex");
-	else
-		return pVector[pos-StartIndex];
+	/*if (pos < StartIndex) 
+		throw invalid_argument("Uncorrectly position, pos<StartIndex");*/
+	if(pos<StartIndex){
+		return *new ValType();
+	}
+
+	return pVector[pos-StartIndex];
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // сравнение
@@ -124,7 +127,7 @@ bool TVector<ValType>::operator==(const TVector &v) const
 		return false;
 	for( int i=StartIndex; i < Size+StartIndex; i++)
 	{
-		if (pVector[i]!=v.pVector[i])
+		if ((*this)[i]!=v[i])
 			return false;
 	}
 	return true;
@@ -139,7 +142,7 @@ bool TVector<ValType>::operator!=(const TVector &v) const
 	if( Size!=v.Size )
 		return true;
 	for( int i=StartIndex; i < Size+StartIndex; i++)
-		if (pVector[i]!=v.pVector[i])
+		if ((*this)[i]!=v[i])
 			return true;
 	return false;
 
@@ -157,12 +160,9 @@ TVector<ValType>& TVector<ValType>::operator=(const TVector &v)
 		delete []pVector;
 		pVector=new ValType[Size];
 	}
-
+	StartIndex=v.StartIndex; 
 	for( int i=StartIndex; i < Size+StartIndex; i++)
-		pVector[i] = v.pVector[i]; 
-
-	//memcpy(pVector, v.pVector, sizeof(ValType)*Size);
-
+		(*this)[i] = v[i]; 
 	return *this;
 } /*-------------------------------------------------------------------------*/
 
@@ -171,7 +171,7 @@ TVector<ValType> TVector<ValType>::operator+(const ValType &val)
 {
 	TVector<ValType> res(Size,StartIndex);
 	for( int i=StartIndex; i < Size+StartIndex; i++)
-		res.pVector[i] = pVector[i] + val; 
+		res[i] = (*this)[i] + val; 
 
 	return res;
 
@@ -308,10 +308,12 @@ TMatrix<ValType>::TMatrix(int s): TVector<TVector<ValType> >(s)
 	Size = s;
 
 	for(int i=0; i < Size; i++)
-			pVector[i] = TVector <ValType>(Size-i ,i);
+			pVector[i] = TVector<ValType>(Size-i ,i);
+
 	for (int i=0; i < Size; i++)
 		for (int j=(*this)[i].GetStartIndex(); j < (*this)[i].GetStartIndex() + (*this)[i].GetSize(); j++)
 			pVector[i][j] = 0;
+
 	
 } /*-------------------------------------------------------------------------*/
 
@@ -345,7 +347,7 @@ bool TMatrix<ValType>::operator==(const TMatrix<ValType> &mt) const
 template <class ValType> // сравнение
 bool TMatrix<ValType>::operator!=(const TMatrix<ValType> &mt) const
 {
-	if (this != &mt)
+	/*if (this != &mt)
 		return true;
 
 	else
@@ -362,7 +364,8 @@ bool TMatrix<ValType>::operator!=(const TMatrix<ValType> &mt) const
 					
 				else
 					return false;
-		}
+		}*/
+	return !(*this==mt);
 } /*-------------------------------------------------------------------------*/
 
 template <class ValType> // присваивание
